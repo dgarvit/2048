@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Login</title>
+	<style type="text/css">
+		.social-icons {	height: 50px;}
+	</style>
+</head>
+<body>
+	<div>
+		{% if user and not user.is_anonymous %}
+		{{ user.get_full_name }}<br>
+		<a href="{% url 'auth:logout' %}?next=/">
+			Logout
+		</a>
+		{% else %}
+		<a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">
+			<img src="https://static-assets.filmfreeway.com/assets/google_icon-ed3d9227111f14d90a5d4c0c8f7d39be.svg" class="social-icons">
+		</a>
+		{% endif %}
+	</div>
+</body>
+</html>
