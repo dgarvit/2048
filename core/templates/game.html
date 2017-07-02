@@ -1,0 +1,26 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+	<title>2048</title>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-loader.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-animate.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-route.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular.js"></script>
+	<script src="{% static 'js/app.js' %}"></script>
+</head>
+
+<body ng-app="twoZeroFourEight">
+	<div ng-controller = "GameController">
+
+	<!-- HEADER -->
+	<div><h1>2048</h1></div>
+    <div>Welcome {{ user.get_full_name }}! 
+    <a href="{% url 'auth:logout' %}?next=/">
+			Logout
+		</a></div>
+	</div>
+
+	
+</body>
+</html>
