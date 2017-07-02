@@ -14,7 +14,7 @@
 			Logout
 		</a>
 		{% else %}
-		<a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">
+		<a href="{% url 'social:begin' 'google-oauth2' %}?next=/game">
 			<img src="https://static-assets.filmfreeway.com/assets/google_icon-ed3d9227111f14d90a5d4c0c8f7d39be.svg" class="social-icons">
 		</a>
 		{% endif %}
