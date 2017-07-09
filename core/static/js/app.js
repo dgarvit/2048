@@ -9,6 +9,7 @@
 	angular.module('Game', ['Grid'])
 	.service('GameManager', ['GridService' ,function(a) {
 		this.grid = a.grid;
+		this.tiles = a.tiles;
 		this.start = function() {
 			a.buildEmptyBoard();
 		};
@@ -24,24 +25,17 @@
 
 		return Tile;
 	})
-	.service('GridService', function(TileModel) {
+	.service('GridService', ['TileModel' , function(a) {
 		this.grid = [null];
 		this.tiles = [];
 		this.size = 4;
 		var a = this;
 		this.buildEmptyBoard = function() {
-			//var self = this;
-
 			for (var x = 0; x < a.size * a.size; x++) {
 				this.grid[x] = null;
 			}
-
-			/*this.forEach(function(a,b) {
-				var pos = {x:a, y:b};
-				self.setCell(pos, null);
-			});*/
 		};
-	})
+	}])
 	.directive('grid', function() {
 		return {
 			restrict: 'A',
@@ -50,6 +44,15 @@
 				ngModel: '='
 			},
 			templateUrl: '/static/html/grid.html'
+		};
+	})
+	.directive('tile', function() {
+		return {
+			restrict: 'A',
+			scope: {
+				ngModel: '='
+			},
+			templateUrl: '/static/html/tile.html'
 		};
 	});
 	
