@@ -6,6 +6,7 @@
 	<title>2048</title>
 	<script src="{% static 'js/angular.js' %}"></script>
 	<script src="{% static 'js/app.js' %}"></script>
+	<script src="{% static 'js/template.js' %}"></script>
 </head>
 
 <body ng-app="twoZeroFourEight">
@@ -14,7 +15,7 @@
 			    <a href="{% url 'auth:logout' %}?next=/">
 						Logout
 					</a></div>
-		<div id="content" ng-controller = "GameController">
+		<div id="content" ng-controller = "GameController as ctrl">
 			<div id="heading" class="row">
 				<h1 class="title">2048</h1>
 			    <div class="scores">
@@ -23,7 +24,7 @@
 			</div>
 
 			<div id="game-container">
-				<div grid ng-model="GameController.game" class="row">
+				<div grid ng-model="ctrl.game" class="row">
 			</div>
 		</div>
 	</div>

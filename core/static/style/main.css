@@ -48,4 +48,5 @@ body {
     float: left;
     border-radius: 3px;
     background: rgba(238,228,218,.35);
+    z-index: 2;
 }
