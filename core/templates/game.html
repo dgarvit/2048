@@ -2,11 +2,11 @@
 <!DOCTYPE html>
 <html>
 <head>
+	<link rel="icon" href="{% static 'favicon.ico' %}" type="image/x-icon">
 	<link rel="stylesheet" type="text/css" href="{% static 'style/main.css' %}">
 	<title>2048</title>
 	<script src="{% static 'js/angular.js' %}"></script>
 	<script src="{% static 'js/app.js' %}"></script>
-	<script src="{% static 'js/template.js' %}"></script>
 </head>
 
 <body ng-app="twoZeroFourEight">
@@ -24,7 +24,24 @@
 			</div>
 
 			<div id="game-container">
-				<div grid ng-model="ctrl.game" class="row">
+				<!--<div grid ng-model="ctrl.game" class="row">-->
+				<div id="game">
+  					<div class="grid-container">
+    					<div class="cell" ng-repeat="cell in grid track by $index"></div>
+    				</div>
+  					<div class="tile-container">
+  					{% verbatim %}
+    					<div ng-repeat='tile in tiles track by $id(tile.id || $index)'>
+    						<div class="tile position-{{ tile.x }}-{{ tile.y }} tile-{{ tile.value }}">
+  								<div class="tile-inner">
+    								
+    								{{ tile.value }}
+    								{% endverbatim %}
+  								</div>
+							</div>
+    					</div>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

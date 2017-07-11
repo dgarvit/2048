@@ -1,36 +1,159 @@
 (function() {
 
-	angular.module('twoZeroFourEight', ['Game','Grid'])
-	.controller('GameController', ['GameManager', function(a) {
+	angular.module('twoZeroFourEight', ['Game','Grid', 'Keyboard'])
+	.controller('GameController', ['GameManager', 'KeyboardService', '$scope' ,function(a, b, c) {
 		this.game = a;
-		this.game.start();
+		c.grid = this.game.grid;
+		c.tiles = this.game.tiles;
+		c.apple = 1;
+		this.start = function() {
+			var self = this;
+			b.on(function(key) {
+				
+				self.game.move(key);
+				c.$apply();
+			});
+		};
+		this.newGame = function() {
+			b.init();
+			this.game.start();
+			this.start();
+		};
+		this.newGame();
 	}]);
 
 	angular.module('Game', ['Grid'])
 	.service('GameManager', ['GridService' ,function(a) {
 		this.grid = a.grid;
 		this.tiles = a.tiles;
+		this.winningVal = 2048;
+		this.reinit = function() {
+			this.win = false;
+			this.gameOver = false;
+		};
+		this.reinit();
 		this.start = function() {
 			a.build();
+			this.reinit();
 		};
+
+		this.movesAv = function() {
+			return (a.availableCells().length > 0) || a.availableTileMatches();
+		};
+
+		this.move = function(key) {
+			for (var i = 0; i < a.size; i++) {
+				for (var j = 0; j < a.size; j++) {
+					var x = i * a.size + j;
+					if (this.tiles[x]) {
+						this.tiles[x].merged = null;
+					}
+				}
+			}
+			var self = this;
+			if (self.win) {
+				return false;
+			}
+			var pos = {
+					x: [],
+					y: []
+				};
+			for (var i = 0; i < a.size; i++) {
+				if (key === 'left')
+					pos.x.push(i);
+				else
+					pos.x.push(a.size-i-1);
+				if (key === 'up')
+					pos.y.push(i);
+				else
+					pos.y.push(a.size-i-1);
+			}
+			var won = false, moved = false;
+			pos.x.forEach(function(x) {
+				pos.y.forEach(function(y) {
+					var originalPos = {x:x, y:y};
+					var tile = a.get(originalPos);
+					if (tile) {
+						var cell = a.nextPos(tile, key), next = cell.next;
+						if (next && (next.value === tile.value) && !next.merged) {
+							var newVal = tile.value * 2;
+							var mergedTile = a.newTile(tile, newVal);
+							mergedTile.merged = [tile, cell.next];
+							a.insert(mergedTile);
+							a.remove(tile);
+							a.moveTile(mergedTile, next);
+							if (mergedTile.value >= self.winningVal) {
+								hasWon = true;
+							}
+							moved = true;
+						} 
+						else {
+							a.moveTile(tile, cell.newPos);
+						}
+
+						if (originalPos.x !== cell.newPos.x || originalPos.y !== cell.newPos.y) {
+							moved = true;
+						}
+					}
+				});
+			});
+			if (moved) {
+				a.insertNew();
+				if (self.win || !self.movesAv()) {
+					self.gameOver = true;
+				}
+			}
+		}
 	}]);
 
 	angular.module('Grid', [])
-	.factory('TileModel', function() {
+	.factory('GenerateUniqueId', function() {
+		var a = function() {
+			var a = (new Date).getTime();
+			var b = "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(b) {
+            	var c = (a + 16 * Math.random()) % 16 | 0;
+            	return a = Math.floor(a / 16),
+            	("x" === b ? c : 7 & c | 8).toString(16)
+        	});
+        	return b;
+		};
+		return {
+			next: function() {
+				return a()
+			}
+		}
+	})
+	.factory('TileModel', ['GenerateUniqueId', function(a) {
 		var Tile = function(pos, val) {
 			this.x = pos.x;
 			this.y = pos.y;
 			this.value = val || 2;
+			this.id = a.next();
+			this.merged = null;
+		};
+		Tile.prototype.updatePos = function(newPos) {
+			this.x = newPos.x;
+			this.y = newPos.y;
 		};
 
 		return Tile;
-	})
+	}])
 	.service('GridService', ['TileModel' , function(TileModel) {
-		this.grid = [null];
+		this.grid = [];
 		this.tiles = [];
 		this.size = 4;
 		var a = this;
-
+		var vectors = {
+			'left' : {x:-1, y:0},
+			'up' : {x:0, y:-1},
+			'right': {x:1, y:0},
+			'down' : {x:0, y:1}
+		};
+		
+		this.same = function(a, b) {
+            return a.x === b.x && a.y === b.y
+        };
+	
 		this.withinGrid = function(pos) {
 			return pos.x >=0 && pos.y >=0 && pos.x < a.size && pos.y < a.size;
 		};
@@ -76,6 +199,11 @@
 			}
 		};
 
+		this.insert = function(tile) {
+			var i = (tile.y * a.size) + tile.x;
+			this.tiles[i] = tile;
+		};
+
 		this.remove = function(pos) {
 			var i = (pos.y * a.size) + pos.x;
 			delete this.tiles[i];
@@ -95,27 +223,86 @@
 
 			this.insertNew();
 			this.insertNew();
+			
 		};
-	}])
-	.directive('grid', function() {
-		return {
-			restrict: 'A',
-			require: 'ngModel',
-			scope: {
-				ngModel: '='
-			},
-			templateUrl: '/static/html/grid.html'
+
+		this.nextPos = function(cell, key) {
+			var v = vectors[key];
+			var p;
+
+			while (this.withinGrid(cell)) {
+				p = cell;
+				cell = {
+					x: p.x + v.x,
+					y: p.y + v.y
+				};
+				if (this.get(cell))
+					break;
+			}
+			
+			return {
+				newPos: p,
+				next: this.get(cell)
+			};
 		};
-	})
-	.directive('tile', function() {
-		return {
-			restrict: 'A',
-			scope: {
-				ngModel: '='
-			},
-			templateUrl: '/static/html/tile.html'
+
+		this.moveTile = function(tile, newPos) {
+			var oldPos = {
+				x: tile.x,
+				y: tile.y
+			};
+
+			this.set(oldPos, null);
+			this.set(newPos, tile);
+			tile.x = newPos.x;
+			tile.y = newPos.y;
 		};
-	});
-	
+
+		this.newTile = function(pos, value) {
+  			return new TileModel(pos, value);
+		};
+	}]);
+
+	angular.module('Keyboard', [])
+	.service('KeyboardService', ['$document', function($document) {
+		var map = {
+			37: 'left',
+			38: 'up',
+			39: 'right',
+			40: 'down'
+		};
+		var a = this;
+		this.eh = [];
+
+		this.next = function(key, b) {
+			var c = this.eh;
+			if(!c) {
+				return;
+			}
+			b.preventDefault();
+			if(c) {
+				for (var i = 0; i < c.length; i++) {
+					var temp = c[i];
+					temp(key, b);
+				}
+			}
+		};
+
+		this.on = function(b) {
+			this.eh.push(b);
+		};
+
+		this.init = function() {
+			this.eh = [];
+			$document.bind('keydown', function(b) {
+				var key = map[b.which];
+				if (key) {
+					b.preventDefault();
+					a.next(key, b);
+				}
+			});
+		};
+
+	}]);	
 
 })();
