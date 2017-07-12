@@ -78,7 +78,7 @@
 						if (next && (next.value === tile.value) && !next.merged) {
 							var newVal = tile.value * 2;
 							var mergedTile = a.newTile(tile, newVal);
-							mergedTile.merged = [tile, cell.next];
+							mergedTile.merged = true;
 							a.insert(mergedTile);
 							a.remove(tile);
 							a.moveTile(mergedTile, next);

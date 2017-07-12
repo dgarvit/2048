@@ -32,9 +32,8 @@
   					<div class="tile-container">
   					{% verbatim %}
     					<div ng-repeat='tile in tiles track by $id(tile.id || $index)'>
-    						<div class="tile position-{{ tile.x }}-{{ tile.y }} tile-{{ tile.value }}">
+    						<div ng-if='tile' class="tile position-{{ tile.x }}-{{ tile.y }} tile-{{ tile.value }}" ng-class="{ 'tile-merged' : tile.merged }">
   								<div class="tile-inner">
-    								
     								{{ tile.value }}
     								{% endverbatim %}
   								</div>
