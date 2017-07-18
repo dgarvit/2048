@@ -12,4 +12,5 @@ urlpatterns = [
     url('', include('social.apps.django_app.urls', namespace='social')),
     url('', include('django.contrib.auth.urls', namespace='auth')),
     url(r'^game/', 'core.views.game', name='game'),
+    url(r'^serial/', 'core.views.highScore')
 ]

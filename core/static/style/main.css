@@ -2,6 +2,7 @@ body {
 	background: #faf8ef;
 	font-family: 'Arial';
 	color: #776E66;
+    line-height: 1.42857;
 }
 
 .container {
@@ -18,6 +19,13 @@ body {
 
 #heading {
 	margin-top: 60px;
+}
+
+.game-container {
+    position: relative;
+    width: 400px;
+    height: 400px;
+    margin: 40px auto
 }
 
 #game {
@@ -71,6 +79,17 @@ body {
   -webkit-transition-property: -webkit-transform;
   -moz-transition-property: -moz-transform;
   transition-property: transform;
+}
+
+.tile-container .tile {
+    font-family: 'Open Sans',sans-serif;
+    position: absolute;
+    width: 81.25px;
+    height: 81.25px;
+    border-radius: 3px;
+    transition: 170ms ease-in-out;
+    transition-property: transform;
+    z-index: 2
 }
 
 .tile.position-0-0 {

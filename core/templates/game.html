@@ -15,16 +15,25 @@
 			    <a href="{% url 'auth:logout' %}?next=/">
 						Logout
 					</a></div>
-		<div id="content" ng-controller = "GameController as ctrl">
+		<div id="content" ng-controller = "GameController">
 			<div id="heading" class="row">
 				<h1 class="title">2048</h1>
 			    <div class="scores">
-			    	<!-- CREATE MODEL FOR SCORES -->
+			    	<div class="score">
+			    		{% verbatim %} 
+			    		{{ score }}
+			    		{% endverbatim %}
+			    	</div>
+
+			    	<div class="score">
+			    		{% verbatim %} 
+			    		{{ highScore }}
+			    		{% endverbatim %}
+			    	</div>
 			    </div>
 			</div>
 
 			<div id="game-container">
-				<!--<div grid ng-model="ctrl.game" class="row">-->
 				<div id="game">
   					<div class="grid-container">
     					<div class="cell" ng-repeat="cell in grid track by $index"></div>

@@ -1,16 +1,28 @@
 (function() {
 
 	angular.module('twoZeroFourEight', ['Game','Grid', 'Keyboard'])
-	.controller('GameController', ['GameManager', 'KeyboardService', '$scope' ,function(a, b, c) {
+	.controller('GameController', ['GameManager', 'KeyboardService', '$scope', '$http' ,function(a, b, c, d) {
 		this.game = a;
 		c.grid = this.game.grid;
 		c.tiles = this.game.tiles;
-		c.apple = 1;
+		c.score = this.game.score;
+		this.getHighScore = function() {
+			d.get('/serial/')
+			.success(function(response) {
+				console.log(response.highScore);
+				c.highScore = response.highScore;
+			});
+		};
+		this.getHighScore();
 		this.start = function() {
 			var self = this;
 			b.on(function(key) {
 				
 				self.game.move(key);
+				c.score = self.game.score;
+				if (c.score > c.highScore) {
+					c.highScore = c.score;
+				}
 				c.$apply();
 			});
 		};
@@ -27,6 +39,7 @@
 		this.grid = a.grid;
 		this.tiles = a.tiles;
 		this.winningVal = 2048;
+		this.score = a.score;
 		this.reinit = function() {
 			this.win = false;
 			this.gameOver = false;
@@ -38,7 +51,11 @@
 		};
 
 		this.movesAv = function() {
-			return (a.availableCells().length > 0) || a.availableTileMatches();
+			return (a.availableCells().length > 0) || a.matchAv();
+		};
+		this.updateScore = function(val) {
+			this.score += val;
+			console.log(this.score);
 		};
 
 		this.move = function(key) {
@@ -77,6 +94,7 @@
 						var cell = a.nextPos(tile, key), next = cell.next;
 						if (next && (next.value === tile.value) && !next.merged) {
 							var newVal = tile.value * 2;
+							self.updateScore(tile.value);
 							var mergedTile = a.newTile(tile, newVal);
 							mergedTile.merged = true;
 							a.insert(mergedTile);
@@ -103,7 +121,7 @@
 					self.gameOver = true;
 				}
 			}
-		}
+		};
 	}]);
 
 	angular.module('Grid', [])
@@ -141,6 +159,7 @@
 	.service('GridService', ['TileModel' , function(TileModel) {
 		this.grid = [];
 		this.tiles = [];
+		this.score = 0;
 		this.size = 4;
 		var a = this;
 		var vectors = {
@@ -220,10 +239,8 @@
 					a.set({x:j, y:i}, null);
 				}
 			}
-
 			this.insertNew();
-			this.insertNew();
-			
+			this.insertNew();		
 		};
 
 		this.nextPos = function(cell, key) {
@@ -261,6 +278,31 @@
 		this.newTile = function(pos, value) {
   			return new TileModel(pos, value);
 		};
+
+		this.matchAv = function() {
+			for (var i = 0; i < a.size; i++) {
+				for (var j = 0; j < a.size; j++) {
+					var x = (i * a.size) + j;
+					var tile = this.tiles[x];
+					if(tile) {
+						for (v in vectors) {
+							v = vectors[v];
+							var pos = {
+								x: tile.x + v.x,
+								y: tile.y + v.y
+							}
+							var temp = this.get(pos);
+							if (temp && temp.value === tile.value)
+								return true;
+						}
+					}
+					else {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 	}]);
 
 	angular.module('Keyboard', [])
