@@ -9,8 +9,23 @@
 		this.getHighScore = function() {
 			d.get('/serial/')
 			.success(function(response) {
-				console.log(response.highScore);
 				c.highScore = response.highScore;
+				//console.log(response);
+			});
+		};
+		this.updateHighScore = function() {
+			d.get('/serial/')
+			.success(function(response) {
+				c.user = response.user;
+				console.log(response);
+			});
+			//console.log(c.user);
+			d.post('/update/', {
+				'user' : c.user,
+				'highScore' : c.score
+			})
+			.then(function(response) {
+				console.log(response);
 			});
 		};
 		this.getHighScore();
@@ -22,6 +37,7 @@
 				c.score = self.game.score;
 				if (c.score > c.highScore) {
 					c.highScore = c.score;
+					self.updateHighScore();
 				}
 				c.$apply();
 			});
@@ -55,7 +71,6 @@
 		};
 		this.updateScore = function(val) {
 			this.score += val;
-			console.log(this.score);
 		};
 
 		this.move = function(key) {
