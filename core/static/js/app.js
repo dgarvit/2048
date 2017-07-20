@@ -1,7 +1,7 @@
 (function() {
 
 	angular.module('twoZeroFourEight', ['Game','Grid', 'Keyboard'])
-	.controller('GameController', ['GameManager', 'KeyboardService', '$scope', '$http' ,function(a, b, c, d) {
+	.controller('GameController', ['GameManager', 'KeyboardService', '$scope', '$http', '$window' ,function(a, b, c, d, e) {
 		this.game = a;
 		c.grid = this.game.grid;
 		c.tiles = this.game.tiles;
@@ -10,23 +10,21 @@
 			d.get('/serial/')
 			.success(function(response) {
 				c.highScore = response.highScore;
+				c.temp = response.highScore;
+				c.user = response.user;
 				//console.log(response);
 			});
 		};
-		this.updateHighScore = function() {
-			d.get('/serial/')
-			.success(function(response) {
-				c.user = response.user;
-				console.log(response);
-			});
-			//console.log(c.user);
-			d.post('/update/', {
-				'user' : c.user,
-				'highScore' : c.score
-			})
-			.then(function(response) {
-				console.log(response);
-			});
+		e.onbeforeunload = function() {
+			if (c.score > c.temp) {
+				d.post('/update/', {
+					'user' : c.user,
+					'highScore' : c.score
+				})
+				.then(function(response) {
+					console.log(response);
+				});
+			}
 		};
 		this.getHighScore();
 		this.start = function() {
@@ -37,7 +35,7 @@
 				c.score = self.game.score;
 				if (c.score > c.highScore) {
 					c.highScore = c.score;
-					self.updateHighScore();
+					//self.updateHighScore();
 				}
 				c.$apply();
 			});
