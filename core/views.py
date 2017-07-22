@@ -8,7 +8,6 @@ from rest_framework.parsers import JSONParser
 from core.models import HighScore
 from core.serializers import HighScoreSerializer
 from django.contrib.auth.models import User
-from django.views.decorators.csrf import csrf_exempt
 
 def home(request):
 	context = {'request' : request,
@@ -35,7 +34,6 @@ def highScore(request):
 		return JsonResponse(serializer.data, safe=False)
 
 @login_required(login_url="/")
-@csrf_exempt
 def highScoreUpdate(request):
 	if request.method == 'POST':
 		HighScore.objects.get(user = request.user).delete()

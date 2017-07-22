@@ -1,7 +1,7 @@
 (function() {
 
-	angular.module('twoZeroFourEight', ['Game','Grid', 'Keyboard'])
-	.controller('GameController', ['GameManager', 'KeyboardService', '$scope', '$http', '$window' ,function(a, b, c, d, e) {
+	angular.module('twoZeroFourEight', ['Game','Grid', 'Keyboard', 'ngCookies'])
+	.controller('GameController', ['GameManager', 'KeyboardService', '$scope', '$http', '$window', '$cookies' ,function(a, b, c, d, e, f) {
 		this.game = a;
 		c.grid = this.game.grid;
 		c.tiles = this.game.tiles;
@@ -41,11 +41,17 @@
 			});
 		};
 		this.newGame = function() {
+			qw = f['csrftoken']
+			console.log(qw);
 			b.init();
 			this.game.start();
 			this.start();
 		};
 		this.newGame();
+	}])
+	.config(['$httpProvider', function($httpProvider) {
+		$httpProvider.defaults.xsrfCookieName = 'csrftoken';
+		$httpProvider.defaults.xsrfHeaderName = 'X-CSRFToken';
 	}]);
 
 	angular.module('Game', ['Grid'])
