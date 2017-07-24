@@ -1,7 +1,7 @@
 (function() {
 
 	angular.module('twoZeroFourEight', ['Game','Grid', 'Keyboard', 'ngCookies'])
-	.controller('GameController', ['GameManager', 'KeyboardService', '$scope', '$http', '$window', '$cookies' ,function(a, b, c, d, e, f) {
+	.controller('GameController', ['GameManager', 'KeyboardService', '$scope', '$http', '$window' ,function(a, b, c, d, e) {
 		this.game = a;
 		c.grid = this.game.grid;
 		c.tiles = this.game.tiles;
@@ -37,12 +37,14 @@
 					c.highScore = c.score;
 					//self.updateHighScore();
 				}
+				console.log(self.game.gameOver);
+				if (self.game.gameOver) {
+					c.gameOver = true;
+				}
 				c.$apply();
 			});
 		};
 		this.newGame = function() {
-			qw = f['csrftoken']
-			console.log(qw);
 			b.init();
 			this.game.start();
 			this.start();
@@ -114,6 +116,9 @@
 						if (next && (next.value === tile.value) && !next.merged) {
 							var newVal = tile.value * 2;
 							self.updateScore(tile.value);
+							if (tile.value == 2048) {
+								self.win = true;
+							}
 							var mergedTile = a.newTile(tile, newVal);
 							mergedTile.merged = true;
 							a.insert(mergedTile);
