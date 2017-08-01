@@ -15,8 +15,20 @@
 				//console.log(response);
 			});
 		};
+		this.updateHighScore = function() {
+			if (c.score >= c.temp) {
+				d.post('/update/', {
+					'user' : c.user,
+					'highScore' : c.score
+				})
+				.then(function(response) {
+					console.log(response);
+				});
+			}
+		};
+
 		e.onbeforeunload = function() {
-			if (c.score > c.temp) {
+			if (c.score >= c.temp) {
 				d.post('/update/', {
 					'user' : c.user,
 					'highScore' : c.score
@@ -40,6 +52,7 @@
 				console.log(self.game.gameOver);
 				if (self.game.gameOver) {
 					c.gameOver = true;
+					self.updateHighScore();
 				}
 				c.$apply();
 			});
