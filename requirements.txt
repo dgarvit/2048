@@ -15,7 +15,7 @@ oauthlib==2.0.2
 packaging==16.8
 psycopg2==2.7.3
 Pygments==2.2.0
-PyJWT==1.5.2
+PyJWT==2.4.0
 pyparsing==2.2.0
 python-decouple==3.0
 python-openid==2.2.5
